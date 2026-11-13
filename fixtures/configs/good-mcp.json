@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "fs-project": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem@2025.1.14", "./src"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github@1.2.3"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_TOKEN}"
+      }
+    },
+    "local-http": {
+      "url": "http://127.0.0.1:8808/mcp"
+    }
+  }
+}

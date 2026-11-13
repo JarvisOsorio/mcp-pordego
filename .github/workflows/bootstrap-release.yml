@@ -1,0 +1,64 @@
+name: bootstrap-release
+
+# Creates the v0.1.0 GitHub Release (with bundled CLI asset) once main has code.
+# Safe to leave: subsequent runs no-op if the release already exists.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm test
+      - name: Ensure tag + release v0.1.0
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view v0.1.0 >/dev/null 2>&1; then
+            echo "Release v0.1.0 already exists"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -f v0.1.0
+          git push origin v0.1.0 --force
+          gh release create v0.1.0 \
+            dist/mcp-pordego.cjs \
+            --title "mcp-pordego v0.1.0 — scanner" \
+            --notes "$(cat <<'NOTES'
+          ## Scanner-first release
+
+          `mcp-pordego scan` audits MCP configs (Claude Desktop/Code, Cursor, VS Code) for unpinned servers, inline secrets, injection heuristics, and over-broad tools.
+
+          ### Install / run
+          \`\`\`bash
+          git clone https://github.com/JarvisOsorio/mcp-pordego.git
+          cd mcp-pordego && pnpm install && pnpm build
+          pnpm scan -- --config path/to/mcp.json
+          # or
+          node packages/cli/dist/index.js scan
+          \`\`\`
+
+          Or download \`mcp-pordego.cjs\` from this release and run \`node mcp-pordego.cjs scan\`.
+
+          ### Tests
+          \`pnpm test\` — 39 tests (static rules, live rules, detectors, discovery, runner).
+
+          Gateway (policy/lock/redact/audit/replay) is specified in SPEC.md and stubbed in the CLI; not shipped yet.
+          NOTES
+          )"

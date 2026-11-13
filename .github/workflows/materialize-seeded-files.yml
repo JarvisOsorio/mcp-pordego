@@ -1,0 +1,39 @@
+name: materialize-seeded-files
+on:
+  push:
+    paths:
+      - ".github/seed/**"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode SPEC.md and pnpm-lock.yaml from seed parts
+        run: |
+          set -euo pipefail
+          if ls .github/seed/spec-part-*.b64 >/dev/null 2>&1; then
+            cat $(ls .github/seed/spec-part-*.b64 | sort) | base64 -d > SPEC.md
+            echo "Wrote SPEC.md ($(wc -c < SPEC.md) bytes)"
+          fi
+          if ls .github/seed/lock-part-*.b64 >/dev/null 2>&1; then
+            cat $(ls .github/seed/lock-part-*.b64 | sort) | base64 -d > pnpm-lock.yaml
+            echo "Wrote pnpm-lock.yaml ($(wc -c < pnpm-lock.yaml) bytes)"
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add SPEC.md pnpm-lock.yaml || true
+          if git diff --cached --quiet; then
+            echo "Nothing to commit"
+          else
+            git commit -m "chore: materialize SPEC.md and pnpm-lock.yaml from seed"
+            git push
+          fi
+          rm -rf .github/seed .github/workflows/materialize-seeded-files.yml
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: remove one-shot materialize seed artifacts"
+            git push
+          fi

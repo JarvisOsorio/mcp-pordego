@@ -1,25 +1,20 @@
-import type { LiveRule } from "../../types.js";
+import type { Finding, LiveRule } from "../../types.js";
 
 export const descCrossToolRef: LiveRule = {
   id: "desc-cross-tool-ref",
   severity: "medium",
   check(server) {
-    const findings = [];
+    const findings: Finding[] = [];
     const names = server.tools.map((t) => t.name);
     for (const tool of server.tools) {
       const desc = tool.description ?? "";
       if (!desc) continue;
       for (const other of names) {
         if (other === tool.name) continue;
-        // require a verb-ish instruction involving the other tool
-        const re = new RegExp(
-          `(?:use|call|invoke|run|first|before|after|instead)\s+[\s\S]{0,40}\b${escapeRe(other)}\b|\b${escapeRe(other)}\b[\s\S]{0,40}(?:instead|first|before)`,
-          "i",
-        );
-        if (!re.test(desc)) continue;
+        if (!mentionsOtherTool(desc, other)) continue;
         findings.push({
           rule: "desc-cross-tool-ref",
-          severity: "medium" as const,
+          severity: "medium",
           server: server.name,
           tool: tool.name,
           message: `Description of ${tool.name} instructs behavior involving ${other}`,
@@ -32,6 +27,31 @@ export const descCrossToolRef: LiveRule = {
   },
 };
 
-function escapeRe(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const VERBS = /\b(?:use|call|invoke|run|first|before|after|instead)\b/i;
+
+function isWordChar(ch: string | undefined): boolean {
+  if (!ch) return false;
+  return /[A-Za-z0-9_]/.test(ch);
+}
+
+/**
+ * Heuristic: description mentions another tool name (word-bounded) near an instructional verb.
+ * Avoids RegExp string escapes that are fragile across JSON-based git pushes.
+ */
+export function mentionsOtherTool(desc: string, other: string): boolean {
+  const lower = desc.toLowerCase();
+  const needle = other.toLowerCase();
+  let from = 0;
+  while (from <= lower.length) {
+    const idx = lower.indexOf(needle, from);
+    if (idx < 0) return false;
+    const beforeOk = !isWordChar(lower[idx - 1]);
+    const afterOk = !isWordChar(lower[idx + needle.length]);
+    if (beforeOk && afterOk) {
+      const window = desc.slice(Math.max(0, idx - 48), idx + other.length + 48);
+      if (VERBS.test(window)) return true;
+    }
+    from = idx + 1;
+  }
+  return false;
 }

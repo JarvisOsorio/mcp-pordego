@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/redact" },
+    { "path": "./packages/scan" },
+    { "path": "./packages/cli" }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "name": "mcp-pordego",
+  "version": "0.1.0",
+  "description": "MCP security scanner and gateway. Scan first: audit your MCP configs for unpinned servers, injection, secrets, and over-broad tools.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "author": "Jarvis Osorio",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JarvisOsorio/mcp-pordego.git"
+  },
+  "homepage": "https://github.com/JarvisOsorio/mcp-pordego#readme",
+  "bugs": {
+    "url": "https://github.com/JarvisOsorio/mcp-pordego/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "security",
+    "scanner",
+    "policy",
+    "gateway",
+    "audit"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "mcp-pordego": "./dist/mcp-pordego.cjs"
+  },
+  "files": [
+    "dist/mcp-pordego.cjs",
+    "README.md",
+    "LICENSE",
+    "SPEC.md",
+    "SECURITY.md"
+  ],
+  "scripts": {
+    "build": "pnpm -r run build && node scripts/bundle-cli.mjs",
+    "bundle": "node scripts/bundle-cli.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc -b --pretty false",
+    "scan": "node dist/mcp-pordego.cjs scan",
+    "clean": "pnpm -r run clean && rm -rf dist",
+    "prepack": "pnpm build && pnpm test"
+  },
+  "private": false,
+  "packageManager": "pnpm@10.33.4",
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.4"
+  }
+}

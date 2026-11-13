@@ -1,10 +1,17 @@
 # mcp-pordego
 
+[![GitHub stars](https://img.shields.io/github/stars/JarvisOsorio/mcp-pordego?style=social)](https://github.com/JarvisOsorio/mcp-pordego/stargazers)
+[![CI](https://github.com/JarvisOsorio/mcp-pordego/actions/workflows/ci.yml/badge.svg)](https://github.com/JarvisOsorio/mcp-pordego/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](https://nodejs.org/)
+
 **Scan your MCP setup for security footguns. Gateway coming next.**
 
-`mcp-pordego` (*pordego* = Esperanto for *gate*) audits the MCP servers your agents already use — Claude Desktop, Claude Code, Cursor, VS Code — and flags unpinned packages, inline secrets, prompt-injection in tool descriptions, over-broad filesystem roots, and more.
+Site: [jarvisosorio.com/mcp-pordego](https://jarvisosorio.com/mcp-pordego/) · If this helps, **[⭐ star the repo](https://github.com/JarvisOsorio/mcp-pordego)** — it helps others find a local MCP scanner.
 
-> **v0.1 ships the scanner.** Policy gateway, lockfile, redaction proxy, audit log, and replay are designed (see [SPEC.md](./SPEC.md)) and land in follow-up releases. The CLI stubs those commands so the surface stays stable.
+`mcp-pordego` (*pordego* = Esperanto for *gate*) is an open-source security scanner for the MCP servers your agents already use — Claude Desktop, Claude Code, Cursor, VS Code. It flags unpinned packages, inline secrets, prompt-injection in tool descriptions, over-broad filesystem roots, and more.
+
+> **v0.1 ships the scanner.** A policy gateway, lockfile, redaction proxy, audit log, and replay are designed (see [SPEC.md](./SPEC.md)) and the CLI stubs those commands so the surface stays stable, but they are **not** in this release.
 
 ```
 ┌─────────┐         ┌──────────────┐
@@ -16,13 +23,11 @@
  mcp-pordego scan   ← you are here (v0.1)
 ```
 
-## Why
+## Install (from source — npm not published yet)
 
-Today, every MCP setup is "give the agent the whole server and hope." No check that a tool description didn't smuggle instructions, no alarm when `npx` floats on `@latest`, nothing stopping a PAT from sitting in plaintext in `mcp.json`.
+Requires **Node.js 20+** and **pnpm**. The package is **not yet on the npm registry** — do **not** run `npx mcp-pordego`. Install from this repository or a [GitHub Release](https://github.com/JarvisOsorio/mcp-pordego/releases) asset.
 
-## Install
-
-Requires **Node 20+** and **pnpm**.
+### Clone and build
 
 ```bash
 git clone https://github.com/JarvisOsorio/mcp-pordego.git
@@ -31,9 +36,19 @@ pnpm install && pnpm build
 pnpm scan -- --help
 ```
 
-After build, the CLI is also at `node packages/cli/dist/index.js` (or the bundled `dist/mcp-pordego.cjs` from `pnpm bundle` / a GitHub Release asset).
+After build, the CLI is also at `node packages/cli/dist/index.js` (or `dist/mcp-pordego.cjs` from `pnpm bundle`).
 
-> npm/`npx mcp-pordego` publishing is next — the package name is free on npm; this repo is the source of truth for v0.1.
+### Or download the release asset
+
+```bash
+curl -L -o mcp-pordego.cjs \
+  https://github.com/JarvisOsorio/mcp-pordego/releases/download/v0.1.1/mcp-pordego.cjs
+node mcp-pordego.cjs scan --help
+```
+
+## Why
+
+Today, every MCP setup is "give the agent the whole server and hope." No check that a tool description didn't smuggle instructions, no alarm when `npx` floats on `@latest`, nothing stopping a PAT from sitting in plaintext in `mcp.json`.
 
 ## Quick start (30 seconds)
 
@@ -57,19 +72,19 @@ Exits **1** on high-severity findings (CI-friendly). Exit **2** on config/integr
 ### Point at a file or command
 
 ```bash
-mcp-pordego scan --config ./fixtures/configs/bad-mcp.json
-mcp-pordego scan --server "npx -y @modelcontextprotocol/server-filesystem@2025.1.14 /tmp"
-mcp-pordego scan --live --config .mcp.json   # spawn servers; tools/list only, never tools/call
+node dist/mcp-pordego.cjs scan --config ./fixtures/configs/bad-mcp.json
+node dist/mcp-pordego.cjs scan --server "npx -y @modelcontextprotocol/server-filesystem@2025.1.14 /tmp"
+node dist/mcp-pordego.cjs scan --live --config .mcp.json   # spawn servers; tools/list only, never tools/call
 ```
 
 ### Output formats
 
 ```bash
-mcp-pordego scan --format text          # default, colored, grouped by server
-mcp-pordego scan --format json
-mcp-pordego scan --format sarif         # GitHub code scanning
-mcp-pordego scan --fail-on medium       # high | medium | low (default: high)
-mcp-pordego scan --baseline accepted.json
+node dist/mcp-pordego.cjs scan --format text          # default, colored, grouped by server
+node dist/mcp-pordego.cjs scan --format json
+node dist/mcp-pordego.cjs scan --format sarif         # GitHub code scanning
+node dist/mcp-pordego.cjs scan --fail-on medium       # high | medium | low (default: high)
+node dist/mcp-pordego.cjs scan --baseline accepted.json
 ```
 
 ## What it checks
@@ -130,7 +145,7 @@ pnpm test
 node packages/cli/dist/index.js scan --config fixtures/configs/bad-mcp.json
 ```
 
-**How to run tests:** `pnpm test` (Vitest). 39 tests covering all static rules, live rules, detectors, discovery, and the scan runner.
+**How to run tests:** `pnpm test` (Vitest). 42 tests covering static rules, live rules, detectors, discovery, and the scan runner.
 
 ## What this is not
 
@@ -140,4 +155,4 @@ node packages/cli/dist/index.js scan --config fixtures/configs/bad-mcp.json
 
 ## License
 
-Apache-2.0
+Apache-2.0 · [jarvisosorio.com/mcp-pordego](https://jarvisosorio.com/mcp-pordego/)

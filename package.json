@@ -1,6 +1,6 @@
 {
   "name": "mcp-pordego",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP security scanner and gateway. Scan first: audit your MCP configs for unpinned servers, injection, secrets, and over-broad tools.",
   "type": "module",
   "license": "Apache-2.0",
@@ -9,18 +9,21 @@
     "type": "git",
     "url": "git+https://github.com/JarvisOsorio/mcp-pordego.git"
   },
-  "homepage": "https://github.com/JarvisOsorio/mcp-pordego#readme",
+  "homepage": "https://jarvisosorio.com/mcp-pordego/",
   "bugs": {
     "url": "https://github.com/JarvisOsorio/mcp-pordego/issues"
   },
   "keywords": [
+    "ai",
+    "audit",
+    "claude",
+    "cursor",
+    "gateway",
     "mcp",
     "model-context-protocol",
-    "security",
-    "scanner",
     "policy",
-    "gateway",
-    "audit"
+    "scanner",
+    "security"
   ],
   "engines": {
     "node": ">=20"

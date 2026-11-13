@@ -16,8 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -46,18 +44,18 @@ jobs:
           `mcp-pordego scan` audits MCP configs (Claude Desktop/Code, Cursor, VS Code) for unpinned servers, inline secrets, injection heuristics, and over-broad tools.
 
           ### Install / run
-          \`\`\`bash
+          ```bash
           git clone https://github.com/JarvisOsorio/mcp-pordego.git
           cd mcp-pordego && pnpm install && pnpm build
           pnpm scan -- --config path/to/mcp.json
           # or
           node packages/cli/dist/index.js scan
-          \`\`\`
+          ```
 
-          Or download \`mcp-pordego.cjs\` from this release and run \`node mcp-pordego.cjs scan\`.
+          Or download `mcp-pordego.cjs` from this release and run `node mcp-pordego.cjs scan`.
 
           ### Tests
-          \`pnpm test\` — 39 tests (static rules, live rules, detectors, discovery, runner).
+          `pnpm test` — 39 tests (static rules, live rules, detectors, discovery, runner).
 
           Gateway (policy/lock/redact/audit/replay) is specified in SPEC.md and stubbed in the CLI; not shipped yet.
           NOTES

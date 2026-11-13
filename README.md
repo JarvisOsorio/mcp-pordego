@@ -22,19 +22,25 @@ Today, every MCP setup is "give the agent the whole server and hope." No check t
 
 ## Install
 
+Requires **Node 20+** and **pnpm**.
+
 ```bash
-npx mcp-pordego scan
-# or
-npm i -g mcp-pordego
-mcp-pordego scan
+git clone https://github.com/JarvisOsorio/mcp-pordego.git
+cd mcp-pordego
+pnpm install && pnpm build
+pnpm scan -- --help
 ```
 
-Requires **Node 20+**.
+After build, the CLI is also at `node packages/cli/dist/index.js` (or the bundled `dist/mcp-pordego.cjs` from `pnpm bundle` / a GitHub Release asset).
+
+> npm/`npx mcp-pordego` publishing is next — the package name is free on npm; this repo is the source of truth for v0.1.
 
 ## Quick start (30 seconds)
 
 ```bash
-npx mcp-pordego scan
+pnpm scan
+# or with an explicit config:
+node packages/cli/dist/index.js scan --config ./fixtures/configs/bad-mcp.json
 ```
 
 Auto-discovers configs from:
@@ -123,6 +129,8 @@ pnpm build
 pnpm test
 node packages/cli/dist/index.js scan --config fixtures/configs/bad-mcp.json
 ```
+
+**How to run tests:** `pnpm test` (Vitest). 39 tests covering all static rules, live rules, detectors, discovery, and the scan runner.
 
 ## What this is not
 

@@ -23,5 +23,12 @@ jobs:
       - run: pnpm test
       - name: Smoke scan fixture
         run: |
-          node packages/cli/dist/index.js scan --config fixtures/configs/bad-mcp.json --format json --no-color || test $? -eq 1
-          node dist/mcp-pordego.cjs scan --config fixtures/configs/good-mcp.json --fail-on high --no-color
+          set +e
+          node packages/cli/dist/index.js scan --config fixtures/configs/bad-mcp.json --no-discover --format json --no-color
+          bad_code=$?
+          node dist/mcp-pordego.cjs scan --config /tmp/mcp-pordego-missing.json --no-discover
+          missing_code=$?
+          set -e
+          test "$bad_code" -eq 1
+          test "$missing_code" -eq 2
+          node dist/mcp-pordego.cjs scan --config fixtures/configs/good-mcp.json --no-discover --fail-on high --no-color

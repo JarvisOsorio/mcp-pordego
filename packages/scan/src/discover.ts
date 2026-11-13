@@ -106,6 +106,32 @@ export function parseConfigFile(
   }
 }
 
+/**
+ * Load an explicit `--config` path. Throws on missing file, invalid JSON, or
+ * zero parseable servers so the CLI can exit 2 (config error) instead of
+ * silently reporting a clean scan.
+ */
+export function loadExplicitConfig(path: string, client = "explicit"): DiscoveredConfig {
+  const abs = resolve(path);
+  if (!existsSync(abs)) {
+    throw new Error(`Config file not found: ${path}`);
+  }
+  let data: unknown;
+  try {
+    data = readJson(abs);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new Error(`Invalid JSON in config file ${path}: ${msg}`);
+  }
+  const servers = extractServers(data, abs, client);
+  if (servers.length === 0) {
+    throw new Error(
+      `No MCP servers found in config file ${path} (expected mcpServers or servers map)`,
+    );
+  }
+  return { path: abs, client, servers };
+}
+
 function candidatePaths(): Array<{ path: string; client: string }> {
   const home = homedir();
   const cwd = process.cwd();

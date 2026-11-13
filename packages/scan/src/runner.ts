@@ -1,7 +1,7 @@
 import { applyBaseline, loadBaseline } from "./baseline.js";
 import {
   discoverConfigs,
-  parseConfigFile,
+  loadExplicitConfig,
   serverFromCommandLine,
 } from "./discover.js";
 import { inspectServerLive } from "./live.js";
@@ -49,8 +49,8 @@ function collectServers(opts: ScanOptions): McpServerConfig[] {
 
   if (opts.configPaths && opts.configPaths.length > 0) {
     for (const p of opts.configPaths) {
-      const parsed = parseConfigFile(p, "explicit");
-      if (parsed) servers.push(...parsed.servers);
+      const parsed = loadExplicitConfig(p, "explicit");
+      servers.push(...parsed.servers);
     }
   } else if (!opts.noDiscover && !opts.serverCommand) {
     for (const cfg of discoverConfigs()) {

@@ -38,10 +38,12 @@ export async function scanCommand(opts: ScanCliOptions): Promise<number> {
     process.stdout.write(result.report);
 
     if (result.servers.length === 0) {
+      // Discovery found nothing — not a config error (exit 0). Explicit --config
+      // paths that are missing/invalid throw above and return 2.
       process.stderr.write(
         "No MCP servers found. Pass --config <path> or --server \"<command>\", or place a config in a known location.\n",
       );
-      return result.findings.length === 0 ? 0 : result.exitCode;
+      return 0;
     }
 
     return result.exitCode;

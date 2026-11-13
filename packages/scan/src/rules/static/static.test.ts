@@ -18,12 +18,19 @@ function srv(partial: Partial<McpServerConfig> & { name: string }): McpServerCon
 }
 
 describe("unpinned-npx", () => {
-  it("flags unversioned and @latest", () => {
+  it("flags unversioned, @latest, dist-tags, and ranges", () => {
     expect(isUnpinnedNpxPackage("@modelcontextprotocol/server-fs")).toBe(true);
     expect(isUnpinnedNpxPackage("@modelcontextprotocol/server-fs@latest")).toBe(true);
     expect(isUnpinnedNpxPackage("foo@^1.0.0")).toBe(true);
+    expect(isUnpinnedNpxPackage("pkg@next")).toBe(true);
+    expect(isUnpinnedNpxPackage("pkg@beta")).toBe(true);
+    expect(isUnpinnedNpxPackage("pkg@>=1.0.0")).toBe(true);
+    expect(isUnpinnedNpxPackage("pkg@1.x")).toBe(true);
     expect(isUnpinnedNpxPackage("@scope/pkg@1.2.3")).toBe(false);
     expect(isUnpinnedNpxPackage("pkg@1.2.3")).toBe(false);
+    expect(isUnpinnedNpxPackage("@modelcontextprotocol/server-filesystem@2025.1.14")).toBe(
+      false,
+    );
   });
 
   it("emits finding for unpinned npx server", () => {
@@ -33,6 +40,29 @@ describe("unpinned-npx", () => {
     expect(f).toHaveLength(1);
     expect(f[0]!.rule).toBe("unpinned-npx");
     expect(f[0]!.severity).toBe("high");
+  });
+
+  it("resolves --package= form instead of the binary name", async () => {
+    const { extractNpxPackage } = await import("./unpinned-npx.js");
+    expect(extractNpxPackage(["-y", "--package=pkg@1.2.3", "node"])).toBe("pkg@1.2.3");
+    expect(
+      unpinnedNpx.check(
+        srv({
+          name: "x",
+          command: "npx",
+          args: ["-y", "--package=evil@latest", "some-bin"],
+        }),
+      ),
+    ).toHaveLength(1);
+    expect(
+      unpinnedNpx.check(
+        srv({
+          name: "x",
+          command: "npx",
+          args: ["-y", "--package=pkg@1.2.3", "some-bin"],
+        }),
+      ),
+    ).toHaveLength(0);
   });
 });
 

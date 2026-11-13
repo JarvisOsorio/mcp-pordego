@@ -78,18 +78,36 @@ export async function inspectServerLive(
     };
   };
 
+  let timer: ReturnType<typeof setTimeout> | undefined;
   try {
     return await Promise.race([
       run(),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error(`live inspect timed out after ${timeoutMs}ms`)), timeoutMs),
-      ),
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => {
+          reject(new Error(`live inspect timed out after ${timeoutMs}ms`));
+        }, timeoutMs);
+      }),
     ]);
   } finally {
+    if (timer) clearTimeout(timer);
+    // Capture pid before close clears it; always tear down so timeouts don't leak children.
+    const pid = transport.pid;
     try {
       await client.close();
     } catch {
       /* ignore */
+    }
+    try {
+      await transport.close();
+    } catch {
+      /* ignore */
+    }
+    if (pid != null) {
+      try {
+        process.kill(pid, "SIGKILL");
+      } catch {
+        /* already exited */
+      }
     }
   }
 }

@@ -40,9 +40,16 @@ export const unpinnedDocker: StaticRule = {
           a === "-p" ||
           a === "-w" ||
           a === "-u" ||
+          a === "-m" ||
           a === "--name" ||
           a === "--network" ||
           a === "--entrypoint" ||
+          a === "--mount" ||
+          a === "--memory" ||
+          a === "--cpus" ||
+          a === "--user" ||
+          a === "--workdir" ||
+          a === "--env-file" ||
           a.startsWith("--env") ||
           a.startsWith("--volume") ||
           a === "-env"

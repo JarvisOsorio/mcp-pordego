@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { parseConfigFile, serverFromCommandLine } from "./discover.js";
+import { loadExplicitConfig, parseConfigFile, serverFromCommandLine } from "./discover.js";
 
 describe("discover/parse", () => {
   it("parses Claude-style mcpServers", () => {
@@ -41,5 +41,20 @@ describe("discover/parse", () => {
     const s = serverFromCommandLine("npx -y foo@1.0.0 /tmp");
     expect(s.command).toBe("npx");
     expect(s.args).toEqual(["-y", "foo@1.0.0", "/tmp"]);
+  });
+
+  it("loadExplicitConfig errors on missing, invalid, or empty configs", () => {
+    expect(() => loadExplicitConfig("/tmp/mcp-pordego-does-not-exist-xyz.json")).toThrow(
+      /not found/,
+    );
+
+    const dir = mkdtempSync(join(tmpdir(), "mcp-pordego-"));
+    const badJson = join(dir, "bad.json");
+    writeFileSync(badJson, "not-json");
+    expect(() => loadExplicitConfig(badJson)).toThrow(/Invalid JSON/);
+
+    const empty = join(dir, "empty.json");
+    writeFileSync(empty, JSON.stringify({ notServers: true }));
+    expect(() => loadExplicitConfig(empty)).toThrow(/No MCP servers/);
   });
 });

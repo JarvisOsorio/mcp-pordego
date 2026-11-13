@@ -1,4 +1,9 @@
-export { discoverConfigs, parseConfigFile, serverFromCommandLine } from "./discover.js";
+export {
+  discoverConfigs,
+  loadExplicitConfig,
+  parseConfigFile,
+  serverFromCommandLine,
+} from "./discover.js";
 export { inspectServerLive } from "./live.js";
 export { applyBaseline, loadBaseline } from "./baseline.js";
 export {

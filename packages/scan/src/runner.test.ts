@@ -64,4 +64,13 @@ describe("runScan", () => {
       shouldFail([{ rule: "x", severity: "high", server: "s", message: "m" }], "high"),
     ).toBe(true);
   });
+
+  it("throws on missing explicit --config (CLI maps to exit 2)", async () => {
+    await expect(
+      runScan({
+        configPaths: ["/tmp/mcp-pordego-missing-config-xyz.json"],
+        noDiscover: true,
+      }),
+    ).rejects.toThrow(/not found/);
+  });
 });
